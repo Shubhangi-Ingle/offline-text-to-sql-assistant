@@ -1,0 +1,251 @@
+{
+  "set": "final",
+  "summary": {
+    "model": "qwen2.5-coder:7b",
+    "total": 20,
+    "correct": 19,
+    "accuracy": 95.0,
+    "first_try_correct": 19,
+    "first_try_accuracy": 95.0,
+    "blocked": 0,
+    "errors": 0,
+    "wrong_answers": 1,
+    "avg_seconds": 43.6,
+    "by_difficulty": {
+      "easy": {
+        "correct": 6,
+        "total": 6
+      },
+      "medium": {
+        "correct": 7,
+        "total": 8
+      },
+      "hard": {
+        "correct": 6,
+        "total": 6
+      }
+    }
+  },
+  "records": [
+    {
+      "id": 201,
+      "difficulty": "easy",
+      "question": "How many customers signed up before 2024?",
+      "generated_sql": "SELECT COUNT(*) AS customers_signed_up FROM customers c WHERE c.signup_date < '2024-01-01'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 197.3,
+      "error": null
+    },
+    {
+      "id": 202,
+      "difficulty": "easy",
+      "question": "What is the most expensive product?",
+      "generated_sql": "SELECT product_name, price AS most_expensive_price FROM products ORDER BY price DESC LIMIT 1",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 29.6,
+      "error": null
+    },
+    {
+      "id": 203,
+      "difficulty": "easy",
+      "question": "How many products belong to the Home & Kitchen category?",
+      "generated_sql": "SELECT COUNT(*) AS product_count FROM products p JOIN categories cat ON cat.category_id = p.category_id WHERE cat.category_name = 'Home & Kitchen'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 20.0,
+      "error": null
+    },
+    {
+      "id": 204,
+      "difficulty": "easy",
+      "question": "How many orders are there in total?",
+      "generated_sql": "SELECT COUNT(*) AS total_orders FROM orders",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 9.6,
+      "error": null
+    },
+    {
+      "id": 205,
+      "difficulty": "easy",
+      "question": "How many customers live in Bengaluru?",
+      "generated_sql": "SELECT COUNT(*) AS customers_in_bengaluru FROM customers c WHERE c.city = 'Bengaluru'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 13.5,
+      "error": null
+    },
+    {
+      "id": 206,
+      "difficulty": "easy",
+      "question": "What is the lowest stock quantity among all products?",
+      "generated_sql": "SELECT MIN(stock_quantity) AS lowest_stock_quantity FROM products",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 8.4,
+      "error": null
+    },
+    {
+      "id": 207,
+      "difficulty": "medium",
+      "question": "How many orders were delivered in 2026?",
+      "generated_sql": "SELECT COUNT(*) AS delivered_orders FROM orders o WHERE o.status = 'delivered' AND o.order_date >= '2026-01-01' AND o.order_date < '2027-01-01'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 30.8,
+      "error": null
+    },
+    {
+      "id": 208,
+      "difficulty": "medium",
+      "question": "What is the average amount of paid card payments?",
+      "generated_sql": "SELECT ROUND(AVG(p.amount), 2) AS average_card_payment FROM payments p WHERE p.payment_status = 'paid' AND p.payment_method = 'card'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 20.3,
+      "error": null
+    },
+    {
+      "id": 209,
+      "difficulty": "medium",
+      "question": "How many customers from Gujarat have placed at least one order?",
+      "generated_sql": "SELECT COUNT(*) AS customers_from_gujarat FROM customers c JOIN orders o ON o.customer_id = c.customer_id WHERE c.state = 'Gujarat'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": false,
+      "seconds": 16.9,
+      "error": null
+    },
+    {
+      "id": 210,
+      "difficulty": "medium",
+      "question": "What is the total amount of failed payments?",
+      "generated_sql": "SELECT ROUND(SUM(p.amount), 2) AS failed_payments_amount FROM payments p WHERE p.payment_status = 'failed'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 88.6,
+      "error": null
+    },
+    {
+      "id": 211,
+      "difficulty": "medium",
+      "question": "How many orders were placed in December 2025?",
+      "generated_sql": "SELECT COUNT(*) AS orders_placed_in_december FROM orders o WHERE o.order_date >= '2025-12-01' AND o.order_date < '2026-01-01'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 26.5,
+      "error": null
+    },
+    {
+      "id": 212,
+      "difficulty": "medium",
+      "question": "How many products cost more than 2000?",
+      "generated_sql": "SELECT COUNT(*) AS product_count FROM products p WHERE p.price > 2000",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 14.2,
+      "error": null
+    },
+    {
+      "id": 213,
+      "difficulty": "medium",
+      "question": "How many payments were made via cash on delivery?",
+      "generated_sql": "SELECT COUNT(*) AS cash_on_delivery_payments FROM payments p WHERE p.payment_method = 'cash_on_delivery'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 23.6,
+      "error": null
+    },
+    {
+      "id": 214,
+      "difficulty": "medium",
+      "question": "What is the total revenue from paid card payments made in 2024?",
+      "generated_sql": "SELECT ROUND(SUM(p.amount), 2) AS card_revenue FROM payments p WHERE p.payment_status = 'paid' AND p.payment_method = 'card' AND p.payment_date >= '2024-01-01' AND p.payment_date < '2025-01-01'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 119.4,
+      "error": null
+    },
+    {
+      "id": 215,
+      "difficulty": "hard",
+      "question": "How many customers placed more than 10 orders?",
+      "generated_sql": "SELECT COUNT(*) AS customer_count FROM (SELECT o.customer_id FROM orders o GROUP BY o.customer_id HAVING COUNT(o.order_id) > 10) t",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 17.5,
+      "error": null
+    },
+    {
+      "id": 216,
+      "difficulty": "hard",
+      "question": "Which state has the highest revenue?",
+      "generated_sql": "SELECT c.state, ROUND(SUM(p.amount), 2) AS total_revenue\nFROM payments p\nJOIN orders o ON o.order_id = p.order_id\nJOIN customers c ON c.customer_id = o.customer_id\nWHERE p.payment_status = 'paid'\nGROUP BY c.state\nORDER BY total_revenue DESC\nLIMIT 1",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 74.2,
+      "error": null
+    },
+    {
+      "id": 217,
+      "difficulty": "hard",
+      "question": "How many customers have had both a cancelled order and a delivered order?",
+      "generated_sql": "SELECT COUNT(*) AS customer_count \nFROM (SELECT o.customer_id \n      FROM orders o \n      WHERE o.status IN ('cancelled', 'delivered') \n      GROUP BY o.customer_id \n      HAVING COUNT(DISTINCT o.status) = 2) t",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 28.2,
+      "error": null
+    },
+    {
+      "id": 218,
+      "difficulty": "hard",
+      "question": "Which payment method has the highest total paid amount?",
+      "generated_sql": "SELECT p.payment_method, ROUND(SUM(p.amount), 2) AS total_paid\nFROM payments p\nWHERE p.payment_status = 'paid'\nGROUP BY p.payment_method\nORDER BY total_paid DESC\nLIMIT 1",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 25.6,
+      "error": null
+    },
+    {
+      "id": 219,
+      "difficulty": "hard",
+      "question": "How many customers have not placed any order in 2025?",
+      "generated_sql": "SELECT COUNT(*) AS customers_without_orders FROM customers c WHERE c.customer_id NOT IN (SELECT o.customer_id FROM orders o WHERE o.order_date >= '2025-01-01' AND o.order_date < '2026-01-01')",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 55.9,
+      "error": null
+    },
+    {
+      "id": 220,
+      "difficulty": "hard",
+      "question": "What is the total revenue from Electronics products?",
+      "generated_sql": "SELECT ROUND(SUM(oi.quantity * oi.unit_price), 2) AS electronics_revenue \nFROM order_items oi \nJOIN orders o ON o.order_id = oi.order_id \nJOIN products pr ON pr.product_id = oi.product_id \nJOIN categories cat ON cat.category_id = pr.category_id \nWHERE cat.category_name = 'Electronics' AND o.status IN ('delivered', 'shipped')",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 51.7,
+      "error": null
+    }
+  ]
+}

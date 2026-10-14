@@ -1,0 +1,361 @@
+{
+  "set": "dev",
+  "summary": {
+    "model": "qwen2.5-coder:3b",
+    "total": 30,
+    "correct": 28,
+    "accuracy": 93.3,
+    "first_try_correct": 28,
+    "first_try_accuracy": 93.3,
+    "blocked": 0,
+    "errors": 0,
+    "wrong_answers": 2,
+    "avg_seconds": 7.1,
+    "by_difficulty": {
+      "easy": {
+        "correct": 10,
+        "total": 10
+      },
+      "medium": {
+        "correct": 13,
+        "total": 13
+      },
+      "hard": {
+        "correct": 5,
+        "total": 7
+      }
+    }
+  },
+  "records": [
+    {
+      "id": 1,
+      "difficulty": "easy",
+      "question": "How many customers are there?",
+      "generated_sql": "SELECT COUNT(*) AS total_customers FROM customers",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 38.6,
+      "error": null
+    },
+    {
+      "id": 2,
+      "difficulty": "easy",
+      "question": "How many products are there in total?",
+      "generated_sql": "SELECT COUNT(*) AS total_products FROM products",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 2.0,
+      "error": null
+    },
+    {
+      "id": 3,
+      "difficulty": "easy",
+      "question": "How many orders were cancelled?",
+      "generated_sql": "SELECT COUNT(*) AS cancelled_orders FROM orders WHERE status = 'cancelled'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 2.4,
+      "error": null
+    },
+    {
+      "id": 4,
+      "difficulty": "easy",
+      "question": "How many customers are from Maharashtra?",
+      "generated_sql": "SELECT COUNT(*) AS customers_from_maharashtra FROM customers c WHERE c.state = 'Maharashtra'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 3.2,
+      "error": null
+    },
+    {
+      "id": 5,
+      "difficulty": "easy",
+      "question": "What is the price of the most expensive product?",
+      "generated_sql": "SELECT MAX(price) AS max_price FROM products",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 2.0,
+      "error": null
+    },
+    {
+      "id": 6,
+      "difficulty": "easy",
+      "question": "How many orders were placed in 2024?",
+      "generated_sql": "SELECT COUNT(*) AS orders_placed FROM orders o WHERE o.order_date >= '2024-01-01' AND o.order_date < '2025-01-01'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 6.4,
+      "error": null
+    },
+    {
+      "id": 7,
+      "difficulty": "easy",
+      "question": "How many payments use the UPI payment method?",
+      "generated_sql": "SELECT COUNT(*) AS upi_payment_count FROM payments WHERE payment_method = 'upi'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 3.1,
+      "error": null
+    },
+    {
+      "id": 8,
+      "difficulty": "easy",
+      "question": "List all category names.",
+      "generated_sql": "SELECT category_name FROM categories",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 1.2,
+      "error": null
+    },
+    {
+      "id": 9,
+      "difficulty": "easy",
+      "question": "How many products are in the Electronics category?",
+      "generated_sql": "SELECT COUNT(*) AS product_count FROM products p JOIN categories cat ON p.category_id = cat.category_id WHERE cat.category_name = 'Electronics'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 5.0,
+      "error": null
+    },
+    {
+      "id": 10,
+      "difficulty": "easy",
+      "question": "What is the average price of all products?",
+      "generated_sql": "SELECT AVG(price) AS average_price FROM products",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 2.1,
+      "error": null
+    },
+    {
+      "id": 11,
+      "difficulty": "medium",
+      "question": "What is the total revenue?",
+      "generated_sql": "SELECT ROUND(SUM(p.amount), 2) AS total_revenue FROM payments p WHERE p.payment_status = 'paid'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 3.6,
+      "error": null
+    },
+    {
+      "id": 12,
+      "difficulty": "medium",
+      "question": "What is the total revenue from net banking payments?",
+      "generated_sql": "SELECT ROUND(SUM(p.amount), 2) AS netbanking_revenue FROM payments p WHERE p.payment_status = 'paid' AND p.payment_method = 'netbanking'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 5.2,
+      "error": null
+    },
+    {
+      "id": 13,
+      "difficulty": "medium",
+      "question": "How many units were sold in the Sports category?",
+      "generated_sql": "SELECT SUM(oi.quantity) AS units_sold FROM order_items oi JOIN orders o ON o.order_id = oi.order_id JOIN products pr ON pr.product_id = oi.product_id JOIN categories cat ON cat.category_id = pr.category_id WHERE o.status IN ('delivered', 'shipped') AND cat.category_name = 'Sports'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 9.6,
+      "error": null
+    },
+    {
+      "id": 14,
+      "difficulty": "medium",
+      "question": "Which 5 products have the highest price?",
+      "generated_sql": "SELECT product_name, price FROM products ORDER BY price DESC LIMIT 5",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 3.0,
+      "error": null
+    },
+    {
+      "id": 15,
+      "difficulty": "medium",
+      "question": "How many customers have placed at least one order?",
+      "generated_sql": "SELECT COUNT(DISTINCT customer_id) AS customers_with_orders FROM orders",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 2.8,
+      "error": null
+    },
+    {
+      "id": 16,
+      "difficulty": "medium",
+      "question": "How many customers have never placed an order?",
+      "generated_sql": "SELECT COUNT(*) AS customers_never_placed_orders FROM customers c WHERE c.customer_id NOT IN (SELECT customer_id FROM orders)",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 3.8,
+      "error": null
+    },
+    {
+      "id": 17,
+      "difficulty": "medium",
+      "question": "What is the average order value?",
+      "generated_sql": "SELECT ROUND(AVG(p.amount), 2) AS average_order_value FROM payments p WHERE p.payment_status = 'paid'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 3.9,
+      "error": null
+    },
+    {
+      "id": 18,
+      "difficulty": "medium",
+      "question": "How many orders were returned in 2025?",
+      "generated_sql": "SELECT COUNT(*) AS returned_orders FROM orders WHERE order_date >= '2025-01-01' AND order_date < '2026-01-01' AND status = 'returned'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 7.4,
+      "error": null
+    },
+    {
+      "id": 19,
+      "difficulty": "medium",
+      "question": "What is the total revenue from payments made in 2025?",
+      "generated_sql": "SELECT ROUND(SUM(p.amount), 2) AS total_revenue FROM payments p WHERE p.payment_status = 'paid' AND p.payment_date >= '2025-01-01' AND p.payment_date < '2026-01-01'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 8.7,
+      "error": null
+    },
+    {
+      "id": 20,
+      "difficulty": "medium",
+      "question": "How many products have fewer than 50 items in stock?",
+      "generated_sql": "SELECT COUNT(*) AS product_count FROM products WHERE stock_quantity < 50",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 2.7,
+      "error": null
+    },
+    {
+      "id": 21,
+      "difficulty": "medium",
+      "question": "What is the total quantity of items in delivered orders?",
+      "generated_sql": "SELECT SUM(oi.quantity) AS total_quantity_in_delivered_orders FROM order_items oi JOIN orders o ON o.order_id = oi.order_id WHERE o.status = 'delivered'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 5.5,
+      "error": null
+    },
+    {
+      "id": 22,
+      "difficulty": "medium",
+      "question": "Which payment method has the most paid payments?",
+      "generated_sql": "SELECT payment_method, COUNT(*) AS payment_count FROM payments WHERE payment_status = 'paid' GROUP BY payment_method ORDER BY payment_count DESC LIMIT 1",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 4.4,
+      "error": null
+    },
+    {
+      "id": 23,
+      "difficulty": "medium",
+      "question": "Which state has the most customers?",
+      "generated_sql": "SELECT state, COUNT(*) AS customer_count FROM customers GROUP BY state ORDER BY customer_count DESC LIMIT 1",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 3.3,
+      "error": null
+    },
+    {
+      "id": 24,
+      "difficulty": "hard",
+      "question": "Which category has the highest revenue?",
+      "generated_sql": "SELECT cat.category_name, SUM(oi.quantity * oi.unit_price) AS revenue FROM order_items oi JOIN orders o ON o.order_id = oi.order_id JOIN products pr ON pr.product_id = oi.product_id JOIN categories cat ON cat.category_id = pr.category_id WHERE o.status IN ('delivered', 'shipped') GROUP BY cat.category_name ORDER BY revenue DESC LIMIT 1",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 10.4,
+      "error": null
+    },
+    {
+      "id": 25,
+      "difficulty": "hard",
+      "question": "Show the 5 customers who spent the most money.",
+      "generated_sql": "SELECT c.full_name, SUM(p.amount) AS total_spent FROM customers c JOIN orders o ON o.customer_id = c.customer_id JOIN payments p ON p.order_id = o.order_id WHERE p.payment_status = 'paid' GROUP BY c.customer_id, c.full_name ORDER BY total_spent DESC LIMIT 5",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 9.2,
+      "error": null
+    },
+    {
+      "id": 26,
+      "difficulty": "hard",
+      "question": "How many customers from Maharashtra placed more than 5 orders?",
+      "generated_sql": "SELECT COUNT(DISTINCT c.customer_id) AS customer_count FROM customers c JOIN orders o ON o.customer_id = c.customer_id WHERE c.state = 'Maharashtra' AND o.status IN ('delivered', 'shipped') GROUP BY c.customer_id HAVING COUNT(o.order_id) > 5",
+      "status": "ok",
+      "attempts": 1,
+      "correct": false,
+      "seconds": 8.7,
+      "error": null
+    },
+    {
+      "id": 27,
+      "difficulty": "hard",
+      "question": "What is the revenue of each category?",
+      "generated_sql": "SELECT cat.category_name, SUM(oi.quantity * oi.unit_price) AS revenue FROM order_items oi JOIN orders o ON o.order_id = oi.order_id JOIN products pr ON pr.product_id = oi.product_id JOIN categories cat ON cat.category_id = pr.category_id WHERE o.status IN ('delivered', 'shipped') GROUP BY cat.category_name ORDER BY revenue DESC",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 10.8,
+      "error": null
+    },
+    {
+      "id": 28,
+      "difficulty": "hard",
+      "question": "Which product has the highest total units sold?",
+      "generated_sql": "SELECT p.product_name, SUM(oi.quantity) AS total_units_sold FROM order_items oi JOIN orders o ON o.order_id = oi.order_id JOIN products p ON p.product_id = oi.product_id WHERE o.status IN ('delivered', 'shipped') GROUP BY p.product_name ORDER BY total_units_sold DESC LIMIT 1",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 13.3,
+      "error": null
+    },
+    {
+      "id": 29,
+      "difficulty": "hard",
+      "question": "How many customers have ordered products from more than one category?",
+      "generated_sql": "SELECT COUNT(DISTINCT o.customer_id) AS customer_count FROM orders o JOIN order_items oi ON oi.order_id = o.order_id GROUP BY o.customer_id HAVING COUNT(DISTINCT oi.product_id) > 1",
+      "status": "ok",
+      "attempts": 3,
+      "correct": false,
+      "seconds": 21.8,
+      "error": null
+    },
+    {
+      "id": 30,
+      "difficulty": "hard",
+      "question": "How many customers have spent more than 50000 in total?",
+      "generated_sql": "SELECT COUNT(*) AS customer_count FROM (SELECT c.customer_id FROM customers c JOIN orders o ON o.customer_id = c.customer_id JOIN payments p ON p.order_id = o.order_id WHERE p.payment_status = 'paid' GROUP BY c.customer_id HAVING SUM(p.amount) > 50000) t",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 9.7,
+      "error": null
+    }
+  ]
+}

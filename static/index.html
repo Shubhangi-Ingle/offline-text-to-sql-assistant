@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ask your data | Offline Text-to-SQL Assistant</title>
+    <script>
+        (function () {
+            var saved = null;
+            try { saved = localStorage.getItem('theme'); } catch (e) { }
+            var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+        })();
+    </script>
+    <style>
+        :root {
+            --bg: #f5f6fa;
+            --surface: #ffffff;
+            --text: #1b1f2a;
+            --muted: #636b7d;
+            --border: #e3e6ee;
+            --accent: #4f46e5;
+            --accent-hover: #4338ca;
+            --accent-soft: #eef0ff;
+            --accent-text: #ffffff;
+            --ok: #15803d;
+            --warn: #b45309;
+            --warn-soft: #fff4e0;
+            --err: #b91c1c;
+            --err-soft: #fdecec;
+            --code-bg: #0f172a;
+            --code-text: #e2e8f0;
+            --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 4px 16px rgba(16, 24, 40, 0.05);
+        }
+
+        :root {
+            color-scheme: light;
+        }
+
+        :root[data-theme="dark"] {
+            color-scheme: dark;
+            --bg: #0e1118;
+            --surface: #171b26;
+            --text: #e8eaf0;
+            --muted: #9aa3b5;
+            --border: #2a3042;
+            --accent: #818cf8;
+            --accent-hover: #a5b4fc;
+            --accent-soft: #232848;
+            --accent-text: #0e1118;
+            --ok: #4ade80;
+            --warn: #fbbf24;
+            --warn-soft: #33270f;
+            --err: #f87171;
+            --err-soft: #3a1717;
+            --code-bg: #0a0d14;
+            --shadow: none;
+        }
+
+        #themeButton {
+            min-width: 84px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            height: 100dvh;
+            background: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.5;
+        }
+
+        button {
+            font: inherit;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ---------- header ---------- */
+        .topbar {
+            flex: none;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .topbar-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 1.15rem;
+            letter-spacing: -0.01em;
+        }
+
+        .brand p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 5px 12px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            font-size: 0.8rem;
+            color: var(--muted);
+            background: var(--bg);
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--muted);
+        }
+
+        .pill.ok .dot {
+            background: var(--ok);
+        }
+
+        .pill.down .dot {
+            background: var(--err);
+        }
+
+        .ghost {
+            padding: 5px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text);
+            font-size: 0.82rem;
+        }
+
+        .ghost:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ---------- chat area ---------- */
+        .chat {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 16px 12px;
+        }
+
+        .thread {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .row.user {
+            justify-content: flex-end;
+        }
+
+        .bubble {
+            max-width: 80%;
+            background: var(--accent);
+            color: var(--accent-text);
+            padding: 10px 16px;
+            border-radius: 18px 18px 4px 18px;
+            word-break: break-word;
+        }
+
+        .avatar {
+            flex: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--accent-soft);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .bot-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            box-shadow: var(--shadow);
+            padding: 16px 18px;
+        }
+
+        /* ---------- greeting ---------- */
+        .welcome-title {
+            margin: 0 0 6px;
+            font-weight: 600;
+            font-size: 1.05rem;
+        }
+
+        .welcome-text {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 14px;
+        }
+
+        .chip {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 0.85rem;
+        }
+
+        .chip:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ---------- thinking indicator ---------- */
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--muted);
+        }
+
+        .typing {
+            display: inline-flex;
+            gap: 5px;
+            align-items: center;
+            flex: none;
+        }
+
+        .typing span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--muted);
+            animation: blink 1.2s infinite ease-in-out;
+        }
+
+        .typing span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes blink {
+
+            0%,
+            80%,
+            100% {
+                opacity: 0.25;
+                transform: scale(0.8);
+            }
+
+            40% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* ---------- results ---------- */
+        .stat-value {
+            font-size: 2.6rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            line-height: 1.1;
+            color: var(--accent);
+        }
+
+        .stat-label {
+            margin-top: 4px;
+            color: var(--muted);
+        }
+
+        .empty {
+            margin: 0;
+            color: var(--muted);
+        }
+
+        .table-wrap {
+            overflow: auto;
+            max-height: 340px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.92rem;
+        }
+
+        th,
+        td {
+            padding: 9px 14px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            position: sticky;
+            top: 0;
+            background: var(--accent-soft);
+            color: var(--muted);
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        tbody tr:nth-child(even) {
+            background: var(--bg);
+        }
+
+        th.num,
+        td.num {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+
+        .badge {
+            padding: 2px 10px;
+            border-radius: 999px;
+            background: var(--warn-soft);
+            color: var(--warn);
+            font-size: 0.76rem;
+            font-weight: 600;
+        }
+
+        .sql-box {
+            margin-top: 10px;
+        }
+
+        .sql-box summary {
+            cursor: pointer;
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.88rem;
+        }
+
+        .sql-wrap {
+            position: relative;
+            margin-top: 10px;
+        }
+
+        pre {
+            margin: 0;
+            padding: 14px 16px;
+            background: var(--code-bg);
+            color: var(--code-text);
+            border-radius: 10px;
+            overflow: auto;
+            font-family: ui-monospace, SFMono-Regular, Consolas, "Courier New", monospace;
+            font-size: 0.85rem;
+            line-height: 1.55;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .copy {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 4px 10px;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            background: #1e293b;
+            color: #e2e8f0;
+            font-size: 0.78rem;
+        }
+
+        /* ---------- clarification ---------- */
+        .clarify-title {
+            margin: 0 0 12px;
+            font-weight: 600;
+        }
+
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 9px 16px;
+            border: 1px solid var(--accent);
+            border-radius: 10px;
+            background: var(--accent-soft);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .option:hover:not(:disabled) {
+            background: var(--accent);
+            color: var(--accent-text);
+        }
+
+        .option.chosen {
+            background: var(--accent);
+            color: var(--accent-text);
+        }
+
+        .custom {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .custom input {
+            flex: 1;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--text);
+            font: inherit;
+        }
+
+        .secondary {
+            padding: 0 16px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .secondary:hover:not(:disabled) {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .locked {
+            opacity: 0.75;
+        }
+
+        .locked button:not(.chosen),
+        .locked input {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* ---------- notices ---------- */
+        .notice {
+            padding: 14px 18px;
+            border-radius: 12px;
+            border: 1px solid;
+        }
+
+        .notice p {
+            margin: 6px 0 0;
+        }
+
+        .notice.info {
+            background: var(--accent-soft);
+            border-color: var(--accent);
+        }
+
+        .notice.warning {
+            background: var(--warn-soft);
+            border-color: var(--warn);
+        }
+
+        .notice.error {
+            background: var(--err-soft);
+            border-color: var(--err);
+        }
+
+        .notice details {
+            margin-top: 10px;
+        }
+
+        .notice summary {
+            cursor: pointer;
+            font-size: 0.88rem;
+        }
+
+        .notice pre {
+            margin-top: 8px;
+        }
+
+        /* ---------- composer (fixed at the bottom) ---------- */
+        .composer {
+            flex: none;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            padding: 12px 16px 10px;
+        }
+
+        .composer-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .composer-inner input {
+            flex: 1;
+            padding: 13px 16px;
+            font-size: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        input:focus,
+        button:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
+        .primary {
+            padding: 0 26px;
+            border: 0;
+            border-radius: 12px;
+            background: var(--accent);
+            color: var(--accent-text);
+            font-weight: 600;
+        }
+
+        .primary:hover:not(:disabled) {
+            background: var(--accent-hover);
+        }
+
+        .primary:disabled,
+        .composer-inner input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .composer-note {
+            max-width: 900px;
+            margin: 8px auto 0;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.76rem;
+        }
+
+        /* ---------- schema dialog ---------- */
+        dialog {
+            width: min(720px, 92vw);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: var(--surface);
+            color: var(--text);
+            padding: 18px;
+        }
+
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.45);
+        }
+
+        .dialog-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        dialog pre {
+            margin-top: 12px;
+            max-height: 60vh;
+        }
+
+        @media (max-width: 600px) {
+            .brand p {
+                display: none;
+            }
+
+            .bubble {
+                max-width: 90%;
+            }
+
+            .custom {
+                flex-direction: column;
+            }
+
+            .secondary {
+                padding: 10px;
+            }
+
+            .primary {
+                padding: 0 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <h1>Ask your data</h1>
+                <p>Offline text-to-SQL assistant</p>
+            </div>
+            <div class="actions">
+                <div class="pill" id="statusPill">
+                    <span class="dot"></span>
+                    <span id="statusText">Connecting...</span>
+                </div>
+                <button class="ghost" id="themeButton" type="button" aria-label="Switch theme">Dark</button>
+                                <button class="ghost" id="schemaButton" type="button">Schema</button>
+                <button class="ghost" id="clearButton" type="button">Clear chat</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="chat" id="chat">
+        <div class="thread" id="thread"></div>
+    </div>
+
+    <div class="composer">
+        <form class="composer-inner" id="askForm" autocomplete="off">
+            <input id="questionInput" type="text" maxlength="500" placeholder="Ask a question about your data..."
+                aria-label="Your question">
+            <button class="primary" id="askButton" type="submit">Send</button>
+        </form>
+        <p class="composer-note">Read-only database access. Every query is checked before it runs.</p>
+    </div>
+
+    <dialog id="schemaDialog">
+        <div class="dialog-head">
+            <strong>Database schema</strong>
+            <button class="ghost" id="schemaClose" type="button">Close</button>
+        </div>
+        <pre id="schemaText">Loading...</pre>
+    </dialog>
+
+    <script>
+        const chat = document.getElementById('chat');
+        const thread = document.getElementById('thread');
+        const form = document.getElementById('askForm');
+        const input = document.getElementById('questionInput');
+        const askButton = document.getElementById('askButton');
+        const statusPill = document.getElementById('statusPill');
+        const statusText = document.getElementById('statusText');
+        const schemaDialog = document.getElementById('schemaDialog');
+        const schemaText = document.getElementById('schemaText');
+
+        let busy = false;
+        let examples = [];
+        let welcomeChips = null;
+        let schemaLoaded = false;
+        const themeButton = document.getElementById('themeButton');
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            themeButton.textContent = theme === 'dark' ? '\u2600\uFE0E Light' : '\u263E Dark';
+            themeButton.setAttribute('aria-label', 'Switch to ' + (theme === 'dark' ? 'light' : 'dark') + ' theme');
+        }
+
+        themeButton.addEventListener('click', () => {
+            const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            applyTheme(next);
+            try { localStorage.setItem('theme', next); } catch (_) { }
+        });
+
+        applyTheme(document.documentElement.getAttribute('data-theme') || 'light');
+        /* ---------- small helpers ---------- */
+
+        function el(tag, className, text) {
+            const node = document.createElement(tag);
+            if (className) node.className = className;
+            if (text !== undefined) node.textContent = text;
+            return node;
+        }
+
+        function isIdColumn(name) {
+            return /(^|_)id$/i.test(name);
+        }
+
+        function prettyLabel(name) {
+            const text = String(name).replace(/_/g, ' ');
+            return text.charAt(0).toUpperCase() + text.slice(1);
+        }
+
+        function formatValue(value, column) {
+            if (value === null || value === undefined) return '\u2014';
+            if (typeof value === 'number') {
+                if (isIdColumn(column)) return String(value);
+                return value.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+            }
+            return String(value);
+        }
+
+        async function postJSON(url, body) {
+            let response;
+            try {
+                response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+            } catch (err) {
+                throw new Error('Cannot reach the server. Make sure it is still running.');
+            }
+            if (!response.ok) {
+                let detail = 'Something went wrong.';
+                try {
+                    const err = await response.json();
+                    if (typeof err.detail === 'string') detail = err.detail;
+                } catch (_) { }
+                throw new Error(detail);
+            }
+            return response.json();
+        }
+
+        function setBusy(value) {
+            busy = value;
+            input.disabled = value;
+            askButton.disabled = value;
+        }
+
+        function scrollToBottom() {
+            requestAnimationFrame(() => {
+                chat.scrollTo({ top: chat.scrollHeight, behavior: 'smooth' });
+            });
+        }
+
+        /* ---------- chat messages ---------- */
+
+        function addUserMessage(text) {
+            if (welcomeChips) welcomeChips.classList.add('hidden');
+            const row = el('div', 'row user');
+            row.appendChild(el('div', 'bubble', text));
+            thread.appendChild(row);
+            scrollToBottom();
+        }
+
+        function addAssistantMessage() {
+            const row = el('div', 'row bot');
+            row.appendChild(el('div', 'avatar', 'AI'));
+            const body = el('div', 'bot-body');
+            row.appendChild(body);
+            thread.appendChild(row);
+            scrollToBottom();
+            return body;
+        }
+
+        function showLoading(body) {
+            body.replaceChildren();
+            const box = el('div', 'card loading');
+            const dots = el('div', 'typing');
+            dots.appendChild(el('span'));
+            dots.appendChild(el('span'));
+            dots.appendChild(el('span'));
+            const label = el('span', '', 'Thinking...');
+            box.appendChild(dots);
+            box.appendChild(label);
+            body.appendChild(box);
+            setTimeout(() => {
+                label.textContent = 'Still working... the first answer after starting can take a minute while the model loads.';
+            }, 8000);
+        }
+
+        function buildWelcome() {
+            const body = addAssistantMessage();
+            const card = el('div', 'card');
+            card.appendChild(el('p', 'welcome-title', 'Hi! Ask me anything about your shop data.'));
+            card.appendChild(el('p', 'welcome-text',
+                'I turn your question into a database query, run it on this machine, and show you the answer ' +
+                'together with the SQL I used. Nothing leaves this computer.'));
+
+            if (examples.length) {
+                const chips = el('div', 'chips');
+                examples.forEach(example => {
+                    const chip = el('button', 'chip', example);
+                    chip.type = 'button';
+                    chip.addEventListener('click', () => ask(example));
+                    chips.appendChild(chip);
+                });
+                card.appendChild(chips);
+                welcomeChips = chips;
+            }
+            body.appendChild(card);
+        }
+
+        /* ---------- rendering an answer ---------- */
+
+        function renderNotice(ctx, tone, title, text, details) {
+            ctx.body.replaceChildren();
+            const box = el('div', 'notice ' + tone);
+            box.appendChild(el('strong', '', title));
+            if (text) box.appendChild(el('p', '', text));
+            if (details) {
+                const more = el('details');
+                more.appendChild(el('summary', '', 'Technical details'));
+                more.appendChild(el('pre', '', details));
+                box.appendChild(more);
+            }
+            ctx.body.appendChild(box);
+        }
+
+        function buildTable(data) {
+            const numeric = data.columns.map((col, i) => {
+                if (isIdColumn(col)) return false;
+                const sample = data.rows.find(r => r[i] !== null && r[i] !== undefined);
+                return sample !== undefined && typeof sample[i] === 'number';
+            });
+
+            const wrap = el('div', 'table-wrap');
+            const table = el('table');
+            const thead = el('thead');
+            const headRow = el('tr');
+            data.columns.forEach((col, i) => {
+                headRow.appendChild(el('th', numeric[i] ? 'num' : '', prettyLabel(col)));
+            });
+            thead.appendChild(headRow);
+            table.appendChild(thead);
+
+            const tbody = el('tbody');
+            data.rows.forEach(row => {
+                const tr = el('tr');
+                row.forEach((value, i) => {
+                    tr.appendChild(el('td', numeric[i] ? 'num' : '', formatValue(value, data.columns[i])));
+                });
+                tbody.appendChild(tr);
+            });
+            table.appendChild(tbody);
+            wrap.appendChild(table);
+            return wrap;
+        }
+
+        function buildMeta(data) {
+            const meta = el('div', 'meta');
+            const rowText = data.rows.length === 1 ? '1 row' : data.rows.length + ' rows';
+            meta.appendChild(el('span', '', rowText + ' \u00b7 ' + data.seconds + ' s \u00b7 ' + (data.note || data.model)));
+            if (data.attempts > 1) {
+                meta.appendChild(el('span', 'badge', 'Self-corrected after ' + (data.attempts - 1) + ' retry'));
+            }
+            if (data.rows.length >= 100) {
+                meta.appendChild(el('span', '', 'Showing the first 100 rows'));
+            }
+            return meta;
+        }
+
+        function buildSql(sql) {
+            const box = el('details', 'sql-box');
+            box.appendChild(el('summary', '', 'Show SQL'));
+            const wrap = el('div', 'sql-wrap');
+            wrap.appendChild(el('pre', '', sql || ''));
+            const copy = el('button', 'copy', 'Copy');
+            copy.type = 'button';
+            copy.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText(sql || '');
+                    copy.textContent = 'Copied';
+                } catch (_) {
+                    copy.textContent = 'Select and press Ctrl+C';
+                }
+                setTimeout(() => { copy.textContent = 'Copy'; }, 1800);
+            });
+            wrap.appendChild(copy);
+            box.appendChild(wrap);
+            return box;
+        }
+
+        function renderResult(ctx, data) {
+            ctx.body.replaceChildren();
+            const card = el('div', 'card');
+
+            if (data.columns.length === 1 && data.rows.length === 1) {
+                card.appendChild(el('div', 'stat-value', formatValue(data.rows[0][0], data.columns[0])));
+                card.appendChild(el('div', 'stat-label', prettyLabel(data.columns[0])));
+            } else if (data.rows.length === 0) {
+                card.appendChild(el('p', 'empty', 'No matching rows were found.'));
+            } else {
+                card.appendChild(buildTable(data));
+            }
+
+            card.appendChild(buildMeta(data));
+            card.appendChild(buildSql(data.sql));
+            ctx.body.appendChild(card);
+        }
+
+        function lockCard(card, chosenButton) {
+            card.classList.add('locked');
+            card.querySelectorAll('button, input').forEach(node => { node.disabled = true; });
+            if (chosenButton) chosenButton.classList.add('chosen');
+        }
+
+        function renderClarify(ctx, data) {
+            ctx.body.replaceChildren();
+            const card = el('div', 'card');
+            card.appendChild(el('p', 'clarify-title', data.clarifying_question));
+
+            const options = el('div', 'options');
+            data.options.forEach(option => {
+                const button = el('button', 'option', option);
+                button.type = 'button';
+                button.addEventListener('click', () => submitClarification(ctx, card, option, data.options, button));
+                options.appendChild(button);
+            });
+            card.appendChild(options);
+
+            const custom = el('div', 'custom');
+            const customInput = el('input');
+            customInput.type = 'text';
+            customInput.maxLength = 300;
+            customInput.placeholder = 'Or describe what you mean...';
+            const customButton = el('button', 'secondary', 'Send');
+            customButton.type = 'button';
+
+            const sendCustom = () => {
+                const value = customInput.value.trim();
+                if (value) submitClarification(ctx, card, value, data.options, null);
+            };
+            customButton.addEventListener('click', sendCustom);
+            customInput.addEventListener('keydown', event => {
+                if (event.key === 'Enter') { event.preventDefault(); sendCustom(); }
+            });
+            custom.appendChild(customInput);
+            custom.appendChild(customButton);
+            card.appendChild(custom);
+
+            ctx.body.appendChild(card);
+        }
+
+        function render(ctx, data) {
+            if (data.status === 'ok') {
+                renderResult(ctx, data);
+            } else if (data.status === 'needs_clarification') {
+                renderClarify(ctx, data);
+            } else if (data.status === 'unanswerable') {
+                renderNotice(ctx, 'info', "I can't answer that from this database",
+                    (data.message || '') + ' I can answer questions about customers, products, orders and payments.');
+            } else if (data.status === 'blocked') {
+                const changesData = /SELECT|Forbidden/.test(data.message || '');
+                renderNotice(ctx, 'warning', "That request can't be run",
+                    changesData
+                        ? 'This assistant is read-only. It answers questions and never changes data.'
+                        : 'The generated query tried to reach something outside the shop data tables, so it was stopped.',
+                    data.message);
+            } else {
+                const details = (data.sql ? 'Last SQL tried:\n' + data.sql + '\n\n' : '') + (data.message || '');
+                renderNotice(ctx, 'error', "I couldn't get a reliable answer",
+                    'I would rather say so than show a number I am not sure about. ' +
+                    'Try rephrasing, or add detail such as a time period or what to measure.',
+                    details);
+            }
+            scrollToBottom();
+        }
+
+        /* ---------- actions ---------- */
+
+        async function ask(question) {
+            if (busy) return;
+            setBusy(true);
+            input.value = '';
+            addUserMessage(question);
+            const ctx = { body: addAssistantMessage(), question: question };
+            showLoading(ctx.body);
+            try {
+                const data = await postJSON('/api/ask', { question: question });
+                render(ctx, data);
+            } catch (err) {
+                renderNotice(ctx, 'error', 'Something went wrong', err.message);
+                scrollToBottom();
+            } finally {
+                setBusy(false);
+                input.focus();
+            }
+        }
+
+        async function submitClarification(ctx, card, reply, options, chosenButton) {
+            if (busy) return;
+            setBusy(true);
+            lockCard(card, chosenButton);
+            addUserMessage(reply);
+            const next = { body: addAssistantMessage(), question: ctx.question };
+            showLoading(next.body);
+            try {
+                const data = await postJSON('/api/clarify', {
+                    question: ctx.question,
+                    reply: reply,
+                    options: options
+                });
+                render(next, data);
+            } catch (err) {
+                renderNotice(next, 'error', 'Something went wrong', err.message);
+                scrollToBottom();
+            } finally {
+                setBusy(false);
+                input.focus();
+            }
+        }
+
+        form.addEventListener('submit', event => {
+            event.preventDefault();
+            const question = input.value.trim();
+            if (question) ask(question);
+        });
+
+        document.getElementById('clearButton').addEventListener('click', () => {
+            if (busy) return;
+            thread.replaceChildren();
+            welcomeChips = null;
+            buildWelcome();
+            input.focus();
+        });
+
+        document.getElementById('schemaButton').addEventListener('click', async () => {
+            schemaDialog.showModal();
+            if (schemaLoaded) return;
+            try {
+                const response = await fetch('/api/schema');
+                const data = await response.json();
+                schemaText.textContent = data.schema;
+                schemaLoaded = true;
+            } catch (_) {
+                schemaText.textContent = 'Could not load the schema.';
+            }
+        });
+        document.getElementById('schemaClose').addEventListener('click', () => schemaDialog.close());
+        schemaDialog.addEventListener('click', event => {
+            if (event.target === schemaDialog) schemaDialog.close();
+        });
+
+        async function init() {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                statusPill.className = 'pill ok';
+                statusText.textContent = 'Running offline \u00b7 ' + data.model;
+            } catch (_) {
+                statusPill.className = 'pill down';
+                statusText.textContent = 'Server not reachable';
+            }
+
+            try {
+                const response = await fetch('/api/examples');
+                const data = await response.json();
+                examples = data.examples || [];
+            } catch (_) { }
+
+            buildWelcome();
+            input.focus();
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,251 @@
+{
+  "set": "heldout",
+  "summary": {
+    "model": "qwen2.5-coder:3b",
+    "total": 20,
+    "correct": 18,
+    "accuracy": 90.0,
+    "first_try_correct": 16,
+    "first_try_accuracy": 80.0,
+    "blocked": 0,
+    "errors": 2,
+    "wrong_answers": 0,
+    "avg_seconds": 10.5,
+    "by_difficulty": {
+      "easy": {
+        "correct": 6,
+        "total": 6
+      },
+      "medium": {
+        "correct": 7,
+        "total": 8
+      },
+      "hard": {
+        "correct": 5,
+        "total": 6
+      }
+    }
+  },
+  "records": [
+    {
+      "id": 101,
+      "difficulty": "easy",
+      "question": "How many orders are pending?",
+      "generated_sql": "SELECT COUNT(*) AS pending_orders FROM orders WHERE status = 'pending'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 5.0,
+      "error": null
+    },
+    {
+      "id": 102,
+      "difficulty": "easy",
+      "question": "How many customers are from Delhi?",
+      "generated_sql": "SELECT COUNT(*) AS customers_from_delhi FROM customers WHERE state = 'Delhi'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 3.6,
+      "error": null
+    },
+    {
+      "id": 103,
+      "difficulty": "easy",
+      "question": "What is the price of the cheapest product?",
+      "generated_sql": "SELECT MIN(price) AS cheapest_product_price FROM products",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 2.0,
+      "error": null
+    },
+    {
+      "id": 104,
+      "difficulty": "easy",
+      "question": "How many payments failed?",
+      "generated_sql": "SELECT COUNT(*) AS failed_payments FROM payments WHERE payment_status = 'failed'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 2.5,
+      "error": null
+    },
+    {
+      "id": 105,
+      "difficulty": "easy",
+      "question": "How many products are in the Books category?",
+      "generated_sql": "SELECT COUNT(*) AS product_count FROM products WHERE category_id = (SELECT category_id FROM categories WHERE category_name = 'Books')",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 3.9,
+      "error": null
+    },
+    {
+      "id": 106,
+      "difficulty": "easy",
+      "question": "How many orders were shipped?",
+      "generated_sql": "SELECT COUNT(*) AS shipped_orders FROM orders WHERE status = 'shipped'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 2.3,
+      "error": null
+    },
+    {
+      "id": 107,
+      "difficulty": "medium",
+      "question": "What is the total refunded amount?",
+      "generated_sql": "SELECT SUM(p.amount) AS total_refunded_amount FROM payments p WHERE p.payment_status = 'refunded'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 3.3,
+      "error": null
+    },
+    {
+      "id": 108,
+      "difficulty": "medium",
+      "question": "How many orders were placed by customers from Pune?",
+      "generated_sql": "SELECT COUNT(*) AS order_count FROM orders o JOIN customers c ON c.customer_id = o.customer_id WHERE c.city = 'Pune'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 4.3,
+      "error": null
+    },
+    {
+      "id": 109,
+      "difficulty": "medium",
+      "question": "What is the average price of products in the Fashion category?",
+      "generated_sql": "SELECT AVG(pr.price) AS average_price FROM products pr JOIN categories cat ON cat.category_id = pr.category_id WHERE cat.category_name = 'Fashion'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 4.8,
+      "error": null
+    },
+    {
+      "id": 110,
+      "difficulty": "medium",
+      "question": "Which city generates the highest revenue?",
+      "generated_sql": "SELECT c.city, SUM(p.amount) AS total_revenue FROM customers c JOIN orders o ON o.customer_id = c.customer_id JOIN payments p ON p.order_id = o.order_id WHERE p.payment_status = 'paid' GROUP BY c.city ORDER BY total_revenue DESC LIMIT 1",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 10.4,
+      "error": null
+    },
+    {
+      "id": 111,
+      "difficulty": "medium",
+      "question": "What is the total stock quantity across all products?",
+      "generated_sql": "SELECT SUM(stock_quantity) AS total_stock_quantity FROM products",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 2.4,
+      "error": null
+    },
+    {
+      "id": 112,
+      "difficulty": "medium",
+      "question": "How many orders were placed in the first quarter of 2025?",
+      "generated_sql": "SELECT COUNT(*) AS orders_placed FROM orders WHERE order_date >= '2025-01-01' AND order_date < '2025-04-01'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 6.8,
+      "error": null
+    },
+    {
+      "id": 113,
+      "difficulty": "medium",
+      "question": "How many distinct customers have at least one payment using UPI?",
+      "generated_sql": "SELECT COUNT(DISTINCT c.customer_id) AS distinct_customers FROM customers c JOIN payments p ON c.customer_id = p.customer_id WHERE p.payment_method = 'upi'",
+      "status": "error",
+      "attempts": 3,
+      "correct": false,
+      "seconds": 21.7,
+      "error": "column p.customer_id does not exist\nLINE 1: ...OM customers c JOIN payments p ON c.customer_id = p.customer...\n                                                             ^\nHINT:  Perhaps you meant to reference the column \"c.customer_id\"."
+    },
+    {
+      "id": 114,
+      "difficulty": "medium",
+      "question": "What is the revenue of each payment method?",
+      "generated_sql": "SELECT p.payment_method, SUM(p.amount) AS total_revenue FROM payments p WHERE p.payment_status = 'paid' GROUP BY p.payment_method",
+      "status": "ok",
+      "attempts": 2,
+      "correct": true,
+      "seconds": 10.5,
+      "error": null
+    },
+    {
+      "id": 115,
+      "difficulty": "hard",
+      "question": "How many orders contain more than 2 different products?",
+      "generated_sql": "SELECT COUNT(*) AS order_count FROM (SELECT order_id FROM order_items GROUP BY order_id HAVING COUNT(DISTINCT product_id) > 2) t",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 6.5,
+      "error": null
+    },
+    {
+      "id": 116,
+      "difficulty": "hard",
+      "question": "How many customers from Maharashtra have spent more than 20000 in total?",
+      "generated_sql": "SELECT COUNT(*) AS customer_count FROM (SELECT c.customer_id FROM customers c JOIN orders o ON o.customer_id = c.customer_id JOIN payments p ON p.order_id = o.order_id WHERE c.state = 'Maharashtra' AND p.payment_status = 'paid' GROUP BY c.customer_id HAVING SUM(p.amount) > 20000) t",
+      "status": "ok",
+      "attempts": 2,
+      "correct": true,
+      "seconds": 27.7,
+      "error": null
+    },
+    {
+      "id": 117,
+      "difficulty": "hard",
+      "question": "How many customers have ordered products from at least 3 different categories?",
+      "generated_sql": "SELECT COUNT(*) AS customer_count FROM (SELECT o.customer_id FROM orders o JOIN order_items oi ON oi.order_id = o.order_id JOIN products pr ON pr.product_id = oi.product_id JOIN categories cat ON cat.category_id = pr.category_id GROUP BY o.customer_id HAVING COUNT(DISTINCT cat.category_name) >= 3) t",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 12.9,
+      "error": null
+    },
+    {
+      "id": 118,
+      "difficulty": "hard",
+      "question": "What is the total revenue from customers in Karnataka?",
+      "generated_sql": "SELECT SUM(p.amount) AS total_revenue FROM payments p JOIN orders o ON o.order_id = p.order_id JOIN customers c ON c.customer_id = o.customer_id WHERE c.state = 'Karnataka' AND p.payment_status = 'paid'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 9.8,
+      "error": null
+    },
+    {
+      "id": 119,
+      "difficulty": "hard",
+      "question": "How many customers placed orders in both 2024 and 2025?",
+      "generated_sql": "SELECT COUNT(DISTINCT c.customer_id) AS customer_count FROM customers c JOIN orders o ON o.customer_id = c.customer_id WHERE o.order_date >= '2024-01-01' AND o.order_date < '2025-01-01' INTERSECT SELECT COUNT(DISTINCT c.customer_id) FROM customers c JOIN orders o ON o.customer_id = c.customer_id WHERE o.order_date >= '2025-01-01' AND o.order_date < '2026-01-01'",
+      "status": "error",
+      "attempts": 3,
+      "correct": false,
+      "seconds": 64.0,
+      "error": "Wrong result shape: the query returned 0 rows, but a 'how many' question needs exactly ONE row with one number. If you group by customer or product, put the grouping inside a subquery and count it: SELECT COUNT(*) FROM (SELECT ... GROUP BY ... HAVING ...) t. Do not use INTERSECT, UNION or EXCEPT between counts."
+    },
+    {
+      "id": 120,
+      "difficulty": "hard",
+      "question": "What is the total value of items in cancelled orders (quantity times unit price)?",
+      "generated_sql": "SELECT SUM(oi.quantity * oi.unit_price) AS total_value FROM order_items oi JOIN orders o ON o.order_id = oi.order_id WHERE o.status = 'cancelled'",
+      "status": "ok",
+      "attempts": 1,
+      "correct": true,
+      "seconds": 6.4,
+      "error": null
+    }
+  ]
+}
